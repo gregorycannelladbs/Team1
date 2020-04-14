@@ -1,0 +1,46 @@
+Part 1
+
+1) 
+Target variabel "Transaction"
+No missing values
+Data types are identical
+Convert categorical variables to numerical equivalent
+
+
+2)
+
+model accuracy = garbage
+ 
+The majority of visitors will not make a purchase. We are dealling with a very much imballanced classification dataset.
+
+True postive = 	P -> transaction ; R -> transaction
+True negative = P-> no transaction ; R -> no transaction
+False positive = P -> transaction ; R -> no transaction
+False negative = P -> no transaction ; R -> transaction
+
+Whether we want to minimise the false positives or false negatives really depends on the business decision behind it.
+
+- If there is no business decision made based on the the outcome, one would like to place equal emphasis on minimising both.
+
+- If the business decision made is NOT to offer a discount voucher to a customer who is likely to make a purchase, one would like 
+to minimise the false negatives.
+
+False positive = I do not give a discount voucher to a customer who was not going to make a transaction.
+False negative = I give a dicsount voucher to a customer who was going to make a transaction anyway.
+
+- If the business decision is to allocate more computer power ressources to a customer who is likely to make a transaction. Knowing that the servers who provide
+the power ressources are rented and that the cost associated to it is based on usage, one would like to minimise the false positives.
+
+False positive = I give more computer power to a customer who was not going to make a transaction.
+False negative = I do not give a customer more computer power ressources to a customer was going to make a transaction.
+
+
+
+As it is not clear what the business decision will be based on this prediciton model, we will place equal emphasis on minimising both.
+
+
+
+3)
+
+
+
