@@ -4,7 +4,6 @@ Created on Tue Apr 14 19:34:10 2020
 
 @author: Greg
 """
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -44,7 +43,7 @@ dataset['Weekend'] = dataset['Weekend'].apply(converter)
 dataset['VisitorType'] = dataset['VisitorType'].apply(converter2)
 
 categorical_features = ['Month']
-final_data = pd.get_dummies(dataset, columns = categorical_features)
+dataset = pd.get_dummies(dataset, columns = categorical_features)
 
 print(dataset.info())
 print(dataset.head(2))
@@ -98,7 +97,7 @@ best_result = gd_sr.best_score_ # Mean cross-validated score of the best_estimat
 print(best_result)
 
 # Building random forest using the tuned parameter
-rfc = RandomForestClassifier(n_estimators=100, criterion='entropy', max_features='auto', random_state=1)
+rfc = RandomForestClassifier(n_estimators=50, criterion='entropy', max_features='auto', random_state=1)
 rfc.fit(X_train,Y_train)
 featimp = pd.Series(rfc.feature_importances_, index=list(X)).sort_values(ascending=False)
 print(featimp)
@@ -118,7 +117,7 @@ print('FP: ', conf_mat[0,1])
 print('FN: ', conf_mat[1,0])
 
 # Selecting features with higher sifnificance and redefining feature set
-X = dataset[['alcohol', 'density', 'residual sugar', 'volatile acidity', 'chlorides', 'citric acid', 'pH']]
+X = dataset[['PageValue', 'ExitRate', 'ProductRelated_Duration', 'Administrative', 'ProductRelated']]
 
 feature_scaler = StandardScaler()
 X_scaled = feature_scaler.fit_transform(X)
@@ -146,41 +145,41 @@ print('TN: ', conf_mat[0,0])
 print('FP: ', conf_mat[0,1])
 print('FN: ', conf_mat[1,0])
 
-#########################################################
-
-# Implementing PCA to visualize dataset
-pca = PCA(n_components = 2)
-pca.fit(X_scaled)
-x_pca = pca.transform(X_scaled)
-print(pca.explained_variance_ratio_)
-print(sum(pca.explained_variance_ratio_))
-
-plt.figure(figsize = (8,6))
-plt.scatter(x_pca[:,0], x_pca[:,1], c=Y, cmap='plasma')
-plt.xlabel('First Principal Component')
-plt.ylabel('Second Principal Component')
-plt.show()
-
-###########################################################
-
-# Implementing K-Means CLustering on dataset and visualizing clusters
-kmeans = KMeans(n_clusters = 2)
-kmeans.fit(X_scaled)
-plt.figure(figsize = (8,6))
-plt.scatter(x_pca[:,0], x_pca[:,1], c=kmeans.labels_, cmap='plasma')
-plt.xlabel('First Principal Component')
-plt.ylabel('Second Principal Component')
-plt.show()
-
-# Finding the number of clusters (K)
-inertia = []
-for i in range(1,11):
-    kmeans = KMeans(n_clusters = i, random_state = 100)
-    kmeans.fit(X_scaled)
-    inertia.append(kmeans.inertia_)
-
-plt.plot(range(1, 11), inertia)
-plt.title('The Elbow Plot')
-plt.xlabel('Number of clusters')
-plt.ylabel('Inertia')
-plt.show()
+##########################################################
+#
+## Implementing PCA to visualize dataset
+#pca = PCA(n_components = 2)
+#pca.fit(X_scaled)
+#x_pca = pca.transform(X_scaled)
+#print(pca.explained_variance_ratio_)
+#print(sum(pca.explained_variance_ratio_))
+#
+#plt.figure(figsize = (8,6))
+#plt.scatter(x_pca[:,0], x_pca[:,1], c=Y, cmap='plasma')
+#plt.xlabel('First Principal Component')
+#plt.ylabel('Second Principal Component')
+#plt.show()
+#
+############################################################
+#
+## Implementing K-Means CLustering on dataset and visualizing clusters
+#kmeans = KMeans(n_clusters = 2)
+#kmeans.fit(X_scaled)
+#plt.figure(figsize = (8,6))
+#plt.scatter(x_pca[:,0], x_pca[:,1], c=kmeans.labels_, cmap='plasma')
+#plt.xlabel('First Principal Component')
+#plt.ylabel('Second Principal Component')
+#plt.show()
+#
+## Finding the number of clusters (K)
+#inertia = []
+#for i in range(1,11):
+#    kmeans = KMeans(n_clusters = i, random_state = 100)
+#    kmeans.fit(X_scaled)
+#    inertia.append(kmeans.inertia_)
+#
+#plt.plot(range(1, 11), inertia)
+#plt.title('The Elbow Plot')
+#plt.xlabel('Number of clusters')
+#plt.ylabel('Inertia')
+#plt.show()
