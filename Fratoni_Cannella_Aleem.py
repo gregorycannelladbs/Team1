@@ -36,7 +36,7 @@ def converterWeekend(column):
         return 1
     else:
         return 0
-
+dataset['Transaction'] = dataset['Transaction'].apply(converterWeekend)
 dataset['VisitorType'] = dataset['VisitorType'].apply(converterVisitor)
 dataset['Weekend'] = dataset['Weekend'].apply(converterWeekend)
 
