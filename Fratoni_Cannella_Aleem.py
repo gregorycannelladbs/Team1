@@ -123,7 +123,7 @@ X_train, X_test, Y_train, Y_test = train_test_split( X_scaled, Y, test_size = 0.
 smote = SMOTE(random_state = 101)
 X_train,Y_train = smote.fit_sample(X_train,Y_train)
 
-rfc = RandomForestClassifier(n_estimators=50, criterion='entropy', max_features='auto', random_state=1)
+rfc = RandomForestClassifier(n_estimators=1, criterion='entropy', max_features='auto', random_state=1)
 rfc.fit(X_train,Y_train)
 
 Y_pred = rfc.predict(X_test)
