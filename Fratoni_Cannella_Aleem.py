@@ -25,22 +25,23 @@ print(dataset.shape)
 print(dataset.info())
 print(dataset.describe())
 
-def converterVisitor(column):
-    if column == 'Returning_Visitor':
-        return 1
-    else:
-        return 0
+# def converterVisitor(column):
+#     if column == 'Returning_Visitor':
+#         return 1
+#     else:
+#         return 0
 
-def converterWeekend(column):
-    if column == 'TRUE':
-        return 1
-    else:
-        return 0
-dataset['Transaction'] = dataset['Transaction'].apply(converterWeekend)
-dataset['VisitorType'] = dataset['VisitorType'].apply(converterVisitor)
-dataset['Weekend'] = dataset['Weekend'].apply(converterWeekend)
+# def converterWeekend(column):
+#     #print(column)
+#     if str(column) == 'True':
+#         return 1
+#     else:
+#         return 0
+#dataset['Transaction'] = dataset['Transaction'].apply(converterWeekend)
+#dataset['VisitorType'] = dataset['VisitorType'].apply(converterVisitor)
+#dataset['Weekend'] = dataset['Weekend'].apply(converterWeekend)
 
-categorical_features = ['Month']
+categorical_features = ['Month','VisitorType']
 final_data = pd.get_dummies(dataset, columns = categorical_features)
 print(final_data.info())
 print(final_data.head(2))
@@ -69,7 +70,7 @@ X_train,Y_train = smote.fit_sample(X_train,Y_train)
 print("Number of observations in each class after oversampling (training data): \n", pd.Series(Y_train).value_counts())
 
 rfc = RandomForestClassifier(criterion='entropy', max_features='auto',random_state=1)
-grid_param = {'n_estimators': [50, 100, 150, 200, 250, 300]}
+grid_param = {'n_estimators': [1,50, 100, 150, 200, 250, 300]}
 
 gd_sr = GridSearchCV(estimator=rfc, param_grid=grid_param, scoring='precision', cv=5)
 
@@ -90,7 +91,7 @@ best_result = gd_sr.best_score_ # Mean cross-validated score of the best_estimat
 print(best_result)
 
 # Building random forest using the tuned parameter
-rfc = RandomForestClassifier(n_estimators=100, criterion='entropy', max_features='auto', random_state=1)
+rfc = RandomForestClassifier(n_estimators=1, criterion='entropy', max_features='auto', random_state=1)
 rfc.fit(X_train,Y_train)
 featimp = pd.Series(rfc.feature_importances_, index=list(X)).sort_values(ascending=False)
 
@@ -111,7 +112,7 @@ print('FP: ', conf_mat[0,1])
 print('FN: ', conf_mat[1,0])
 
 ## Selecting features with higher sifnificance and redefining feature set
-X = final_data[['PageValue', 'ExitRate', 'ProductRelated_Duration', 'ProductRelated', 'BounceRate', 'Month_Nov', 'Month_May','VisitorType','Month_Mar']]
+X = final_data[['PageValue', 'ExitRate', 'ProductRelated_Duration', 'ProductRelated', 'BounceRate', 'Month_Nov', 'Month_May','Month_Mar','Weekend']]
 
 feature_scaler = StandardScaler()
 X_scaled = feature_scaler.fit_transform(X)
@@ -122,7 +123,7 @@ X_train, X_test, Y_train, Y_test = train_test_split( X_scaled, Y, test_size = 0.
 smote = SMOTE(random_state = 101)
 X_train,Y_train = smote.fit_sample(X_train,Y_train)
 
-rfc = RandomForestClassifier(n_estimators=100, criterion='entropy', max_features='auto', random_state=1)
+rfc = RandomForestClassifier(n_estimators=50, criterion='entropy', max_features='auto', random_state=1)
 rfc.fit(X_train,Y_train)
 
 Y_pred = rfc.predict(X_test)
