@@ -16,30 +16,16 @@ from sklearn import metrics
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn import tree
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
 dataset = pd.read_csv('E-Shop.csv')
-dataset = dataset.drop(['Administrative', 'Administrative_Duration', 'Informational', 'Informational_Duration'], axis = 1)
 
 print(dataset.head())
 print(dataset.shape)
 print(dataset.info())
 print(dataset.describe())
 
-# def converterVisitor(column):
-#     if column == 'Returning_Visitor':
-#         return 1
-#     else:
-#         return 0
-
-# def converterWeekend(column):
-#     #print(column)
-#     if str(column) == 'True':
-#         return 1
-#     else:
-#         return 0
-#dataset['Transaction'] = dataset['Transaction'].apply(converterWeekend)
-#dataset['VisitorType'] = dataset['VisitorType'].apply(converterVisitor)
-#dataset['Weekend'] = dataset['Weekend'].apply(converterWeekend)
 
 categorical_features = ['Month','VisitorType']
 final_data = pd.get_dummies(dataset, columns = categorical_features)
@@ -70,7 +56,7 @@ X_train,Y_train = smote.fit_sample(X_train,Y_train)
 print("Number of observations in each class after oversampling (training data): \n", pd.Series(Y_train).value_counts())
 
 rfc = RandomForestClassifier(criterion='entropy', max_features='auto',random_state=1)
-grid_param = {'n_estimators': [1,50, 100, 150, 200, 250, 300]}
+grid_param = {'n_estimators': [245,250,255]}
 
 gd_sr = GridSearchCV(estimator=rfc, param_grid=grid_param, scoring='precision', cv=5)
 
@@ -91,7 +77,7 @@ best_result = gd_sr.best_score_ # Mean cross-validated score of the best_estimat
 print(best_result)
 
 # Building random forest using the tuned parameter
-rfc = RandomForestClassifier(n_estimators=1, criterion='entropy', max_features='auto', random_state=1)
+rfc = RandomForestClassifier(n_estimators=250, criterion='entropy', max_features='auto', random_state=1)
 rfc.fit(X_train,Y_train)
 featimp = pd.Series(rfc.feature_importances_, index=list(X)).sort_values(ascending=False)
 
@@ -112,7 +98,19 @@ print('FP: ', conf_mat[0,1])
 print('FN: ', conf_mat[1,0])
 
 ## Selecting features with higher sifnificance and redefining feature set
-X = final_data[['PageValue', 'ExitRate', 'ProductRelated_Duration', 'ProductRelated', 'BounceRate', 'Month_Nov', 'Month_May','Month_Mar','Weekend']]
+X = final_data[['PageValue',                 
+                'ExitRate',
+                'ProductRelated_Duration',                 
+                'Administrative', 
+                'ProductRelated',
+                'Administrative_Duration', 
+                'BounceRate',                
+                'Month_Nov',
+                'Informational',
+                'Informational_Duration', 
+                'Month_May',
+                'Weekend',
+                'Month_Mar']]
 
 feature_scaler = StandardScaler()
 X_scaled = feature_scaler.fit_transform(X)
@@ -123,7 +121,7 @@ X_train, X_test, Y_train, Y_test = train_test_split( X_scaled, Y, test_size = 0.
 smote = SMOTE(random_state = 101)
 X_train,Y_train = smote.fit_sample(X_train,Y_train)
 
-rfc = RandomForestClassifier(n_estimators=1, criterion='entropy', max_features='auto', random_state=1)
+rfc = RandomForestClassifier(n_estimators=250, criterion='entropy', max_features='auto', random_state=1)
 rfc.fit(X_train,Y_train)
 
 Y_pred = rfc.predict(X_test)
@@ -139,3 +137,42 @@ print('TP: ', conf_mat[1,1])
 print('TN: ', conf_mat[0,0])
 print('FP: ', conf_mat[0,1])
 print('FN: ', conf_mat[1,0])
+
+#########################################################
+
+# Implementing PCA to visualize dataset
+pca = PCA(n_components = 2)
+pca.fit(X_scaled)
+x_pca = pca.transform(X_scaled)
+print(pca.explained_variance_ratio_)
+print(sum(pca.explained_variance_ratio_))
+
+plt.figure(figsize = (8,6))
+plt.scatter(x_pca[:,0], x_pca[:,1], c=Y, cmap='plasma')
+plt.xlabel('First Principal Component')
+plt.ylabel('Second Principal Component')
+plt.show()
+
+###########################################################
+
+# Implementing K-Means CLustering on dataset and visualizing clusters
+kmeans = KMeans(n_clusters = 2)
+kmeans.fit(X_scaled)
+plt.figure(figsize = (8,6))
+plt.scatter(x_pca[:,0], x_pca[:,1], c=kmeans.labels_, cmap='plasma')
+plt.xlabel('First Principal Component')
+plt.ylabel('Second Principal Component')
+plt.show()
+
+# Finding the number of clusters (K)
+inertia = []
+for i in range(1,11):
+    kmeans = KMeans(n_clusters = i, random_state = 100)
+    kmeans.fit(X_scaled)
+    inertia.append(kmeans.inertia_)
+
+plt.plot(range(1, 11), inertia)
+plt.title('The Elbow Plot')
+plt.xlabel('Number of clusters')
+plt.ylabel('Inertia')
+plt.show()
